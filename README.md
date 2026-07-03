@@ -1,161 +1,160 @@
 # 🎵 Data Augmentation Pipeline — Sahel Sound Triage Platform
 
-> Realistic audio augmentation pipeline for medical AI — expanding the ICBHI 2017 respiratory dataset by 5x with noise, speed, gain, filtering, and pitch variations. Improved lung sound classifier accuracy from **80% to 84.6%**.
+> A Python pipeline that expands lung sound datasets 5x using realistic augmentations, improving model accuracy from 80% to 84.6%.
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![Librosa](https://img.shields.io/badge/Librosa-0.10-orange.svg)](https://librosa.org/)
-[![Audiomentations](https://img.shields.io/badge/Audiomentations-0.30-green.svg)](https://github.com/iver56/audiomentations)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Librosa](https://img.shields.io/badge/Librosa-0.10-green.svg)](https://librosa.org/)
+[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.3-orange.svg)](https://scikit-learn.org/)
 
 ---
 
-## 🎯 Problem
+## 📌 Problem
 
-AI models for medical audio classification are often trained on clean, controlled datasets (ICBHI 2017, CirCor). However, real-world deployment in rural Mali presents challenges:
-- **Background noise** — motorcycles, markets, wind
-- **Power-line interference** — 50Hz hum from unstable electricity
-- **Poor microphone quality** — cheap hardware in the field
-- **Variable recording conditions** — different mic positions, breathing rates
+AI models for medical audio diagnosis are often trained on clean, controlled datasets. But in real-world settings — especially in rural Mali — recordings are noisy, inconsistent, and captured with low-quality hardware. This leads to a **performance gap** between research and deployment.
 
-This pipeline bridges the gap by augmenting training data with realistic variations, improving model robustness.
+This pipeline bridges that gap by augmenting training data with realistic noise and transformations.
 
 ---
 
-## ✨ Features
+## 🎯 What This Pipeline Does
 
-### Augmentations Applied
+| Augmentation | Purpose |
+|--------------|---------|
+| Background noise (white/brown/pink) | Simulates rural clinic environments |
+| Speed variation (±20%) | Captures different breathing rates |
+| Volume variation (±10dB) | Simulates microphone positioning |
+| Low-pass filtering | Simulates low-quality hardware |
+| Time shift | Handles alignment variation |
+| Pitch shift (±2 semitones) | Simulates vocal variation |
+| Gaussian noise | Simulates electronic interference |
 
-| Augmentation | Description | Real-World Simulation |
-| :--- | :--- | :--- |
-| **Background Noise** | White, brown, pink noise | Motorcycles, markets, wind |
-| **Speed Variation** | 0.8x – 1.2x | Different breathing rates |
-| **Volume Variation** | ±10dB | Microphone placement |
-| **Filtering** | High-pass filter (50–150Hz) | Low-quality microphones |
-| **Time Shift** | ±0.2 seconds | Alignment variation |
-| **Pitch Shift** | ±2 semitones | Vocal variation |
-| **Gaussian Noise** | Electronic interference | Power-line hum |
+---
 
-### Results
+## 📊 Results
 
-| Metric | Baseline | Augmented | Improvement |
-|--------|----------|-----------|-------------|
+| Metric | Baseline (Original) | Augmented | Improvement |
+|--------|---------------------|-----------|-------------|
 | **Accuracy** | 80.0% | **84.6%** | **+5.7%** |
-| **Dataset Size** | 920 | **4,600** | **5x expansion** |
-| **Best Model** | — | SVM (RBF) | 84.6% CV accuracy |
+| Dataset Size | 920 samples | **4,600 samples** | **5x expansion** |
+| Best Model | SVM (RBF) | SVM (RBF) | Same model, better performance |
+
+The model was evaluated using **5-fold stratified cross-validation** on the ICBHI 2017 Respiratory Sound Database.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Audio Processing:** `librosa`, `soundfile`
-- **Augmentation:** `audiomentations`
-- **Machine Learning:** `scikit-learn` (SVM, Random Forest)
-- **Data Handling:** `pandas`, `numpy`
-- **Progress Tracking:** `tqdm`
+- **Python** 3.11+
+- **Librosa** — Audio processing
+- **Audiomentations** — Data augmentation
+- **Scikit-learn** — Model training & evaluation
+- **SoundFile** — Audio I/O
+- **TQDM** — Progress bars
 
 ---
 
-## 📁 Project Structure
-### data_augmentation_pipeline/
-### ├── augment_data.py # Augmentation script (generates 5x data)
-### ├── extract_augmented_features.py # Feature extraction from augmented audio
-### ├── train_augmented_simple.py # Training on augmented features
-### ├── icbhi_diagnosis.csv # Metadata for labels
-### ├── requirements.txt # Python dependencies
-### ├── README.md # This file
-### ├── .gitignore # Git ignore rules
-### ├── augmented_lung_features.csv # Extracted features (4,600 samples)
-### ├── augmented_model_best.pkl # Best model (SVM, 84.6% accuracy)
-### ├── augmented_scaler.pkl # Feature scaler
-### └── output/
-### ├── augmented_lung/ # 4,600 augmented .wav files
-### └── augmentation_log.csv # Mapping original → augmented
+## 📁 Repository Structure
+
+```
+data_augmentation_pipeline/
+├── augment_data.py                # Augmentation script
+├── extract_augmented_features.py  # Feature extraction from augmented audio
+├── train_augmented_simple.py      # Training and evaluation
+├── requirements.txt               # Python dependencies
+├── README.md                      # This file
+├── LICENSE                        # MIT License
+├── augmented_lung_features.csv    # Extracted features (4,600 samples)
+├── augmented_model_best.pkl       # Trained model (SVM, 84.6% accuracy)
+├── augmented_scaler.pkl           # Feature scaler
+└── output/
+    ├── augmented_lung/            # 4,600 augmented audio files
+    └── augmentation_log.csv       # Mapping original → augmented
+```
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.11+
-- Git
-
-### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/mymunah-07lmtc/data-augmentation-pipeline.git
-cd data-augmentation-pipeline
-
-# Install dependencies
 pip install -r requirements.txt
-Run the Pipeline
-bash
-# 1. Augment audio files (generates 5x data)
+```
+
+### Run the Pipeline
+
+```bash
+# 1. Augment the dataset (skip if you already have augmented files)
 python augment_data.py
 
 # 2. Extract features from augmented audio
 python extract_augmented_features.py
 
-# 3. Train model on augmented data
+# 3. Train and evaluate the model
 python train_augmented_simple.py
-📊 Results Breakdown
-Cross-Validation Performance
-Model	CV Accuracy	Std Dev
-Random Forest	83.85%	±0.29%
-SVM (RBF)	84.59%	±0.56%
-Class Distribution
-Class	Count	Percentage
-Normal (0)	765	16.6%
-Abnormal (1)	3,835	83.4%
-Improvement Summary
-The augmentation pipeline improved model accuracy by 5.7% over the baseline (80.0% → 84.6%).
+```
 
-🔍 Example Augmentation
-Original Audio:
+### Output
 
-text
-[Clean lung sound]
-Augmented Audio:
+- `augmented_lung_features.csv` — Features for training
+- `augmented_model_best.pkl` — Trained model
+- `augmented_scaler.pkl` — Feature scaler
 
-text
-[Lung sound + Background noise + Speed variation + Gain change]
-The augmented audio simulates what a community health worker would hear in a rural clinic in Mali.
+---
 
-📈 Next Steps
-Clinical validation — Test the augmented model with real Malian patient data
+## 📈 Model Performance Details
 
-Apply to heart sounds — Extend the pipeline to the CirCor dataset
+| Model | CV Accuracy | Std Dev |
+|-------|-------------|---------|
+| Random Forest | 83.9% | ±0.29% |
+| **SVM (RBF)** | **84.6%** | **±0.56%** |
 
-Deploy to Raspberry Pi — Integrate the augmented model into the field device
+The SVM model outperformed Random Forest and was selected as the best model.
 
-Publish the augmented dataset — Share on Hugging Face or Zenodo
+---
 
-🤝 Contributing
-Contributions are welcome! Please:
+## 🔄 How It Works
 
-Fork the repository
+1. **Load** audio files from the ICBHI 2017 dataset
+2. **Apply** 7 different augmentations to each file
+3. **Save** augmented files to `output/augmented_lung/`
+4. **Extract** 36 audio features (MFCCs + spectral features)
+5. **Train** SVM and Random Forest models with 5-fold CV
+6. **Compare** performance with baseline
 
-Create a feature branch
+---
 
-Submit a pull request
+## 📝 License
 
-📝 License
-This project is licensed under the MIT License — see the LICENSE file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-👩🏾‍💻 Author
-Maimouna Tougoutcho Coulibaly
+---
 
-GitHub: @mymunah-07lmtc
+## 👩🏾💻 Author
 
-LinkedIn: maimouna-tougoutcho-coulibaly
+**Maimouna Tougoutcho Coulibaly**
+- GitHub: [@mymunah-07lmtc](https://github.com/mymunah-07lmtc)
+- LinkedIn: [maimouna-tougoutcho-coulibaly](https://linkedin.com/in/maimouna-tougoutcho-coulibaly)
+- Email: maimounatc@gmail.com
 
-Email: maimounatc@gmail.com
+---
 
-🙏 Acknowledgements
-ICBHI 2017 Respiratory Sound Database
+## 🙏 Acknowledgements
 
-Librosa — Audio processing
+- **ICBHI 2017** — Respiratory Sound Database
+- **Audiomentations** — Augmentation library
+- **Librosa** — Audio analysis
 
-Audiomentations — Augmentation library
+---
 
-Built with ❤️ by Maimouna Tougoutcho Coulibaly
+## 📌 Next Steps
+
+- [ ] Apply augmentation to heart sound dataset (CirCor)
+- [ ] Clinical validation with real Malian patient data
+- [ ] Deploy augmented model to Raspberry Pi
+
+---
+
+**Built with ❤️ by Maimouna Tougoutcho Coulibaly**
+
