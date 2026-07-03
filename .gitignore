@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Large output files (but keep sample)
+output/
+*.wav
+*.pkl
+
+# Data files (keep small samples)
+*.tif
+*.tiff
+*.zip
+*.gz
+*.7z
+*.rar
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter notebooks
+*.ipynb_checkpoints/
+
+# Logs
+*.log
