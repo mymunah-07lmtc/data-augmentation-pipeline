@@ -56,22 +56,20 @@ This pipeline bridges the gap by augmenting training data with realistic variati
 ---
 
 ## 📁 Project Structure
-data_augmentation_pipeline/
-├── augment_data.py # Augmentation script (generates 5x data)
-├── extract_augmented_features.py # Feature extraction from augmented audio
-├── train_augmented_simple.py # Training on augmented features
-├── icbhi_diagnosis.csv # Metadata for labels
-├── requirements.txt # Python dependencies
-├── README.md # This file
-├── .gitignore # Git ignore rules
-├── augmented_lung_features.csv # Extracted features (4,600 samples)
-├── augmented_model_best.pkl # Best model (SVM, 84.6% accuracy)
-├── augmented_scaler.pkl # Feature scaler
-└── output/
-├── augmented_lung/ # 4,600 augmented .wav files
-└── augmentation_log.csv # Mapping original → augmented
-
-text
+### data_augmentation_pipeline/
+### ├── augment_data.py # Augmentation script (generates 5x data)
+### ├── extract_augmented_features.py # Feature extraction from augmented audio
+### ├── train_augmented_simple.py # Training on augmented features
+### ├── icbhi_diagnosis.csv # Metadata for labels
+### ├── requirements.txt # Python dependencies
+### ├── README.md # This file
+### ├── .gitignore # Git ignore rules
+### ├── augmented_lung_features.csv # Extracted features (4,600 samples)
+### ├── augmented_model_best.pkl # Best model (SVM, 84.6% accuracy)
+### ├── augmented_scaler.pkl # Feature scaler
+### └── output/
+### ├── augmented_lung/ # 4,600 augmented .wav files
+### └── augmentation_log.csv # Mapping original → augmented
 
 ---
 
