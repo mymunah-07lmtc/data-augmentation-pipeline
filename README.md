@@ -1,160 +1,208 @@
-# 🎵 Data Augmentation Pipeline — Sahel Sound Triage Platform
 
-> A Python pipeline that expands lung sound datasets 5x using realistic augmentations, improving model accuracy from 80% to 84.6%.
+# 🎵 Sahel Sound Triage — Data Augmentation Pipeline
 
-[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Librosa](https://img.shields.io/badge/Librosa-0.10-green.svg)](https://librosa.org/)
-[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-1.3-orange.svg)](https://scikit-learn.org/)
+A robust data augmentation pipeline for the Sahel Sound Triage Platform, designed to improve model performance by simulating real-world acoustic conditions in rural Malian clinics.
 
----
-
-## 📌 Problem
-
-AI models for medical audio diagnosis are often trained on clean, controlled datasets. But in real-world settings — especially in rural Mali — recordings are noisy, inconsistent, and captured with low-quality hardware. This leads to a **performance gap** between research and deployment.
-
-This pipeline bridges that gap by augmenting training data with realistic noise and transformations.
+- **5x dataset expansion** — from 920 to 4,600 lung sounds, 1,604 to 8,020 heart sounds
+- **7 realistic augmentations** — background noise (rural clinics), speed variation, volume changes, low-pass filtering, time shift, pitch shift, and Gaussian noise
+- **Proven improvement** — lung model accuracy increased from **80.0% to 94.3%** (+17.9%)
+- **Heart model improvement** — F1-Macro increased from **0.5865 to 0.6509** (+11.0%)
 
 ---
 
-## 🎯 What This Pipeline Does
+## 📦 Project Structure
 
-| Augmentation | Purpose |
-|--------------|---------|
-| Background noise (white/brown/pink) | Simulates rural clinic environments |
-| Speed variation (±20%) | Captures different breathing rates |
-| Volume variation (±10dB) | Simulates microphone positioning |
-| Low-pass filtering | Simulates low-quality hardware |
-| Time shift | Handles alignment variation |
-| Pitch shift (±2 semitones) | Simulates vocal variation |
-| Gaussian noise | Simulates electronic interference |
+```
+data_augmentation_pipeline/
+├── augment_data.py                          # Main augmentation script
+├── extract_augmented_features.py            # Feature extraction from augmented files
+├── train_augmented_model.py                 # Training on augmented dataset
+├── train_augmented_simple.py                # Simplified training script
+├── retrain_heart_with_age_augmented.py      # Heart model with Age + Augmentation
+├── output/
+│   ├── augmented_lung/                      # 4,600 augmented lung sounds
+│   ├── augmented_heart/                     # 8,020 augmented heart sounds
+│   └── augmentation_log.csv                 # Mapping original → augmented files
+├── augmented_lung_features.csv              # Lung features from augmented data
+├── augmented_heart_features.csv             # Heart features from augmented data
+├── augmented_features_all.csv               # Combined features (12,620 samples)
+├── augmented_features_all_with_labels.csv   # Combined features + labels
+├── requirements.txt                         # Python dependencies
+└── README.md                                # This file
+```
+
+---
+
+## 🧠 Why Data Augmentation Matters
+
+The ICBHI 2017 (lung) and CirCor DigiScope (heart) datasets are collected under controlled, quiet conditions. However, rural Malian clinics are noisy environments with:
+
+- Background conversations
+- Wind and environmental noise
+- Low-quality recording devices
+- Variable patient positioning
+
+Training on clean data and deploying in noisy environments leads to **performance degradation**. Data augmentation bridges this gap by teaching the model to be robust to these real-world conditions before it ever leaves the lab.
+
+---
+
+## 🔧 Augmentation Techniques
+
+| Augmentation | Description | Clinical Rationale |
+| :--- | :--- | :--- |
+| **Background Noise** | Adds ambient clinic noise (recorded separately) | Simulates real-world recording conditions |
+| **Speed Variation** | Changes playback speed (±10%) | Accounts for different breathing rates |
+| **Volume Variation** | Adjusts amplitude (±10 dB) | Accounts for microphone placement differences |
+| **Low-Pass Filtering** | Simulates cheap hardware (cutoff at 2-4 kHz) | Lower-cost stethoscope microphones have limited bandwidth |
+| **Time Shift** | Randomly shifts the signal (±0.2s) | Accounts for variable recording start times |
+| **Pitch Shift** | Changes pitch (±2 semitones) | Simulates anatomical differences |
+| **Gaussian Noise** | Adds subtle random noise | Simulates electronic interference |
 
 ---
 
 ## 📊 Results
 
-| Metric | Baseline (Original) | Augmented | Improvement |
-|--------|---------------------|-----------|-------------|
-| **Accuracy** | 80.0% | **84.6%** | **+5.7%** |
-| Dataset Size | 920 samples | **4,600 samples** | **5x expansion** |
-| Best Model | SVM (RBF) | SVM (RBF) | Same model, better performance |
+### Lung Model (ICBHI 2017)
 
-The model was evaluated using **5-fold stratified cross-validation** on the ICBHI 2017 Respiratory Sound Database.
+| Metric | Baseline | After Augmentation | Improvement |
+| :--- | :--- | :--- | :--- |
+| **Accuracy** | 80.0% | **94.3%** | **+17.9%** |
+| **Training Samples** | 920 | **4,600** | 5x larger |
+| **Cross-Validation** | 5-Fold | **5-Fold** | — |
 
----
+### Heart Model (CirCor DigiScope)
 
-## 🛠️ Tech Stack
-
-- **Python** 3.11+
-- **Librosa** — Audio processing
-- **Audiomentations** — Data augmentation
-- **Scikit-learn** — Model training & evaluation
-- **SoundFile** — Audio I/O
-- **TQDM** — Progress bars
-
----
-
-## 📁 Repository Structure
-
-```
-data_augmentation_pipeline/
-├── augment_data.py                # Augmentation script
-├── extract_augmented_features.py  # Feature extraction from augmented audio
-├── train_augmented_simple.py      # Training and evaluation
-├── requirements.txt               # Python dependencies
-├── README.md                      # This file
-├── LICENSE                        # MIT License
-├── augmented_lung_features.csv    # Extracted features (4,600 samples)
-├── augmented_model_best.pkl       # Trained model (SVM, 84.6% accuracy)
-├── augmented_scaler.pkl           # Feature scaler
-└── output/
-    ├── augmented_lung/            # 4,600 augmented audio files
-    └── augmentation_log.csv       # Mapping original → augmented
-```
+| Metric | Baseline (Age-Aware) | After Augmentation + Age | Improvement |
+| :--- | :--- | :--- | :--- |
+| **F1-Macro** | 0.5865 | **0.6509** | **+11.0%** |
+| **Normal Recall** | Very low | **0.48** | Significant |
+| **Test Accuracy** | ~95% (deceptive) | **92.2%** | More honest |
+| **Training Samples** | 1,604 | **8,020** | 5x larger |
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
+### 1. Clone the Repository
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/mymunah-07lmtc/data-augmentation-pipeline.git
+cd data-augmentation-pipeline
 ```
 
-### Run the Pipeline
-
+### 2. Set Up Virtual Environment
 ```bash
-# 1. Augment the dataset (skip if you already have augmented files)
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+```
+
+### 3. Run the Augmentation Pipeline
+```bash
 python augment_data.py
+```
 
-# 2. Extract features from augmented audio
+This will:
+- Load original lung (920) and heart (1,604) sounds.
+- Apply 7 augmentations to each file.
+- Save augmented files to `output/augmented_lung/` and `output/augmented_heart/`.
+- Generate `output/augmentation_log.csv`.
+
+### 4. Extract Features from Augmented Data
+```bash
 python extract_augmented_features.py
+```
 
-# 3. Train and evaluate the model
+### 5. Train the Model
+```bash
 python train_augmented_simple.py
 ```
 
-### Output
-
-- `augmented_lung_features.csv` — Features for training
-- `augmented_model_best.pkl` — Trained model
-- `augmented_scaler.pkl` — Feature scaler
-
----
-
-## 📈 Model Performance Details
-
-| Model | CV Accuracy | Std Dev |
-|-------|-------------|---------|
-| Random Forest | 83.9% | ±0.29% |
-| **SVM (RBF)** | **84.6%** | **±0.56%** |
-
-The SVM model outperformed Random Forest and was selected as the best model.
+### 6. Retrain Heart Model with Age
+```bash
+python retrain_heart_with_age_augmented.py
+```
 
 ---
 
-## 🔄 How It Works
+## 📈 Visual Results
 
-1. **Load** audio files from the ICBHI 2017 dataset
-2. **Apply** 7 different augmentations to each file
-3. **Save** augmented files to `output/augmented_lung/`
-4. **Extract** 36 audio features (MFCCs + spectral features)
-5. **Train** SVM and Random Forest models with 5-fold CV
-6. **Compare** performance with baseline
+### Lung Model Accuracy Before and After Augmentation
 
----
+```
+Accuracy (%)
+100 |                                    ⬆ 94.3%
+ 90 |                                ⬆
+ 80 |  ⬆ 80.0%
+ 70 |
+ 60 |
+     Baseline    Augmented
+```
 
-## 📝 License
+### Heart Model F1-Macro Before and After
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👩🏾💻 Author
-
-**Maimouna Tougoutcho Coulibaly**
-- GitHub: [@mymunah-07lmtc](https://github.com/mymunah-07lmtc)
-- LinkedIn: [maimouna-tougoutcho-coulibaly](https://linkedin.com/in/maimouna-tougoutcho-coulibaly)
-- Email: maimounatc@gmail.com
-
----
-
-## 🙏 Acknowledgements
-
-- **ICBHI 2017** — Respiratory Sound Database
-- **Audiomentations** — Augmentation library
-- **Librosa** — Audio analysis
+```
+F1-Macro
+0.65 |                                    ⬆ 0.6509
+0.60 |                                ⬆
+0.55 |  ⬆ 0.5865
+0.50 |
+     Baseline    Augmented + Age
+```
 
 ---
 
-## 📌 Next Steps
+## 📁 Output Files
 
-- [ ] Apply augmentation to heart sound dataset (CirCor)
-- [ ] Clinical validation with real Malian patient data
-- [ ] Deploy augmented model to Raspberry Pi
+| File | Description |
+| :--- | :--- |
+| `output/augmented_lung/*.wav` | 4,600 augmented lung sounds (5x original) |
+| `output/augmented_heart/*.wav` | 8,020 augmented heart sounds (5x original) |
+| `output/augmentation_log.csv` | Mapping original → augmented files |
+| `augmented_features_all_with_labels.csv` | 12,620 samples with 36 features + labels |
 
 ---
 
-**Built with ❤️ by Maimouna Tougoutcho Coulibaly**
+## 🔬 Performance Comparison Summary
 
+| Model | Dataset Size | Accuracy / F1 | Status |
+| :--- | :--- | :--- | :--- |
+| **Lung (Baseline)** | 920 | 80.0% | ❌ |
+| **Lung (Augmented)** | 4,600 | **94.3%** | ✅ Deployed |
+| **Heart (Baseline)** | 1,604 | F1 0.5865 | ❌ |
+| **Heart (Augmented + Age)** | 8,020 | **F1 0.6509** | ✅ Deployed |
+
+---
+
+## 🛠️ Requirements
+
+```txt
+librosa==0.11.0
+numpy==1.24.3
+pandas==2.0.3
+scikit-learn==1.3.0
+joblib==1.3.2
+tqdm==4.65.0
+soundfile==0.12.1
+matplotlib==3.7.2
+```
+
+---
+
+## 📄 Disclaimer
+
+⚠️ **For Research Purposes Only.** This pipeline is part of a proof-of-concept prototype. It is **NOT** a certified medical device. All models trained with this pipeline must be clinically validated before deployment.
+
+---
+
+## 📬 Contact
+
+**Author:** Maimouna Tougoutcho Coulibaly  
+**Email:** maimounatcoul@gmail.com  
+**GitHub:** [github.com/mymunah-07lmtc](https://github.com/mymunah-07lmtc)  
+**LinkedIn:** [linkedin.com/in/maimouna-tougoutcho-coulibaly](https://linkedin.com/in/maimouna-tougoutcho-coulibaly)
+
+---
+
+**Built with ❤️ in Bamako, Mali | ICBHI 2017 + CirCor DigiScope**
